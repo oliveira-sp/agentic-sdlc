@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
+  "mcp": {
+    "gitlab": {
+      "type": "local",
+      "command": [
+        "glab",
+        "mcp",
+        "serve"
+      ],
+      "enabled": true
+    }
+  }
+}
