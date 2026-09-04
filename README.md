@@ -40,7 +40,7 @@ left to convention.
 | Piece | Contents |
 |---|---|
 | **Skills** | `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
-| **Commands** | `commit`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
+| **Commands** | `commit`, `commit-propose`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
 | **Agents** | `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents) |
 | **Config** | `opencode.jsonc` — permission rules gating destructive git ops, glab MCP |
 | **Docs** | per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture notes |
