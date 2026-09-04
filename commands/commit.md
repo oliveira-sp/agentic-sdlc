@@ -2,51 +2,12 @@
 description: Generate, review, and create a Conventional Commit from staged changes
 ---
 
-Create a Conventional Commit for the staged changes.
+You are executing `/commit`. Load and follow the **commit** skill completely.
 
-First inspect:
+Context for the current repo:
+!`bash ~/.config/opencode/skills/commit/scripts/commit-context.sh`
 
-    git diff --cached
-
-Also inspect recent commits for style:
-
-    git log --oneline -10
-
-Generate a commit message following Conventional Commits.
-
-Requirements:
-
-- Format:
-
-      <type>(<optional scope>): <summary>
-
-      <body>
-
-- Use imperative mood.
-- Keep the summary under 72 characters.
-- Match existing repository commit style.
-- Prefer a concise body.
-- Use a short bullet list when multiple meaningful changes exist.
-- Use 1-4 bullets maximum.
-- Avoid unnecessary implementation details.
-
-Workflow:
-
-1. Present the proposed commit message to the user.
-2. Ask:
-   "Commit this message? (yes / edit / cancel)"
-3. If the user chooses:
-   - yes:
-       run:
-
-           git commit -m "<message>"
-
-   - edit:
-       ask for the corrected commit message, then run `git commit`.
-   - cancel:
-       stop without committing.
-
-Never commit without explicit user confirmation.
-
-Only use staged changes. Do not include unstaged changes.
-
+Note: this snapshot targets the repo where the command was launched. If the
+commit target differs from the current directory (for example a chezmoi
+handoff), re-run the script yourself with `--chezmoi` or an explicit `DIR` and
+prefer its output.

@@ -17,7 +17,7 @@ logical group of Chezmoi source changes:
 5. Stage only those files with explicit pathspecs (`git add -- <paths>`).
    Never use `git add -A`, `git add .`, or `git add -u`.
 6. Review `git diff --cached` and report what was staged and what remains.
-7. Hand off to `/commit`.
+7. Load and follow the **commit** skill to review and commit the staged group.
 
 Constraints: never commit, push, reset, restore, or modify source file
 contents. Leave pre-existing staged changes and unrelated files untouched.
