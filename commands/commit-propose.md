@@ -13,6 +13,13 @@ wrap it, the fence text gets committed.
 Snapshot:
 !`bash ~/.config/opencode/skills/commit/scripts/commit-context.sh`
 
+## Extra context
+
+Caller-supplied context (may be empty). Incorporate it only where it helps;
+the staged diff is authoritative. Never invent changes not in the snapshot:
+
+$ARGUMENTS
+
 ## Rules
 
 - Format: `<type>(<optional scope>): <summary>` subject line, then a body.
@@ -27,6 +34,4 @@ Snapshot:
 - Plain text: no markdown, no fenced blocks, no commentary before or after,
   exactly one trailing newline.
 - If the snapshot shows no staged changes, print nothing.
-- Never run `git commit`, `git add`, or any mutating command. If an explicit
-  target `DIR` was passed as an argument, re-run the script yourself with that
-  `DIR` and prefer its output.
+- Never run `git commit`, `git add`, or any mutating command.
