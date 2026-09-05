@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+if git diff --cached --quiet 2>/dev/null; then
+  echo "nothing staged" >&2
+  exit 1
+fi
+
+msg="$(opencode run --command commit-propose "$@" 2>/dev/null)" || exit 1
+if [[ -z "$msg" ]]; then
+  echo "no message produced (try in a git repo)" >&2
+  exit 1
+fi
+
+msg="$(printf '%s\n' "$msg" | sed '/^```$/d')"
+printf '%s\n' "$msg" | git commit --edit -F -
