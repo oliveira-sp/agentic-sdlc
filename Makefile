@@ -10,6 +10,9 @@ EXCLUDE := --exclude=opencode.jsonc \
            --exclude=package-lock.json \
            --exclude=bun.lock
 
-.PHONY: install
+.PHONY: install dry-run
 install:
 	rsync -a --delete $(EXCLUDE) $(PAYLOAD)/ $(CONFIG_DIR)/
+
+dry-run:
+	rsync -an --delete $(EXCLUDE) $(PAYLOAD)/ $(CONFIG_DIR)/

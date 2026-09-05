@@ -57,15 +57,16 @@ machine via chezmoi so work and personal setups can differ.
 The `Makefile` syncs the payload into the global opencode config directory:
 
 ```sh
-make install
+make install     # apply the sync
+make dry-run     # show what would change, without touching anything
 ```
 
-This runs a single `rsync -a --delete --delete-excluded config/ "$(CONFIG_DIR)/"`,
-where `CONFIG_DIR` defaults to `$XDG_CONFIG_HOME/opencode` (falling back to
-`~/.config/opencode`). Local-only files that live alongside the installed
-content (`cli.json`, `service.json`, `node_modules/`, `package.json`,
-`package-lock.json`) are preserved. `opencode.jsonc` is intentionally not
-touched — it belongs to chezmoi.
+This runs `rsync -a --delete config/ "$(CONFIG_DIR)/"`, where `CONFIG_DIR`
+defaults to `$XDG_CONFIG_HOME/opencode` (falling back to `~/.config/opencode`).
+Local-only files that live alongside the installed content (`opencode.jsonc`,
+`cli.json`, `service.json`, `node_modules/`, `package.json`,
+`package-lock.json`) are excluded from the sync and preserved. `opencode.jsonc`
+is intentionally not touched — it belongs to chezmoi.
 
 ## Shaped workflows
 
