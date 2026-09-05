@@ -78,10 +78,11 @@ The block:
 [one-line summary of layout: "single-context" or "multi-context"]. See `docs/agents/domain.md`.
 ```
 
-Then write the docs files using the seed templates as a starting point:
+Then write the docs files using the seed templates as a starting point. Read
+them from the installed config dir at `~/.config/opencode/agents/templates/`:
 
-- [docs/agents/templates/issue-tracker-gitlab.md](docs/agents/templates/issue-tracker-gitlab.md): GitLab issue tracker
-- [docs/agents/templates/domain.md](docs/agents/templates/domain.md): domain doc consumer rules + layout
+- `issue-tracker-gitlab.md`: GitLab issue tracker seed
+- `domain.md`: domain doc consumer rules + layout
 
 For "other" issue trackers, write `docs/agents/issue-tracker.md` from scratch using the user's description.
 

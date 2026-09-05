@@ -1,6 +1,6 @@
 # SRS: Porting mattpocock/skills to opencode
 
-**Source SDR:** `~/.config/opencode/docs/sdr-engineering-skills.md`
+**Source SDR:** `docs/sdr-engineering-skills.md` (repo docs/)
 **Status:** Draft requirements spec — derived from the agreed SDR, not yet implemented.
 **Date:** 2026-08-28
 **Author:** synthesized from SDR + upstream `to-spec` template

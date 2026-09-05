@@ -44,9 +44,12 @@ the global opencode config directory (`~/.config/opencode`).
 |---|---|
 | **Skills** | `config/skills/` — `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
 | **Commands** | `config/commands/` — `commit`, `commit-propose`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
-| **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents) |
+| **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents), plus `templates/` seed docs used by `setup-engineering` |
 | **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
-| **Docs** | `config/docs/` — per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture notes |
+
+Repo documentation (not installed) lives at the top-level `docs/`:
+per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture
+notes (`docs/architecture/`), and the SDR/SRS engineering-skills specs.
 
 Machine-specific opencode configuration (`opencode.jsonc` — model selection,
 permission rules, MCP servers) is **not** part of this repo; it is managed per
@@ -81,8 +84,8 @@ The commands compose into a few well-worn chains:
   and Spec axes with parallel subagents.
 
 Per-repo tracking setup is bootstrapped by `setup-engineering`, which writes
-`config/docs/agents/issue-tracker.md` and `config/docs/agents/domain.md` that
-the commands and skills read.
+`docs/agents/issue-tracker.md` and `docs/agents/domain.md` (in each consuming
+repo) that the commands and skills read.
 
 ## Status
 
