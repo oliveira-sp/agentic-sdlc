@@ -1,6 +1,6 @@
 ---
 name: chezmoi
-description: How to use the chezmoi CLI for dotfiles management: source repo and path mapping, status semantics, add flags, discovery of unmanaged configs, and audit/stage/commit workflows. Use for any chezmoi task, including the /chezmoi/* commands.
+description: How to use the chezmoi CLI for dotfiles management: source repo and path mapping, status semantics, add flags, discovery of unmanaged and edited configs, and the add -> /commit workflow. Use for any chezmoi task, including the /chezmoi/* commands.
 ---
 
 # Chezmoi
@@ -54,9 +54,28 @@ Flags:
 Never `chezmoi add` suspicious/secret files without `--encrypt` and explicit
 user confirmation.
 
-## Discovery of unmanaged files
+### Re-capture an edited file
 
-`chezmoi unmanaged` lists targets in `$HOME` not present in the source state.
+A file already managed by chezmoi but edited directly in `$HOME` (for example a
+config you tweaked in place) is re-added with the same bare command:
+
+    chezmoi add <target>
+
+There is no "re-add" special case: `chezmoi add` overwrites the source entry
+with the current deployed content. This is the default flow when a
+deployment-pending file appears in the scan and is selected.
+
+## Discovery (scan)
+
+`scripts/chezmoi-scan.sh` (read-only) renders the current state in one pass:
+
+- `chezmoi unmanaged` — targets in `$HOME` not present in the source state
+- `chezmoi status` — managed targets whose deployed content differs from source
+  (deployment-pending)
+
+It classifies every entry mechanically and emits a table:
+
+    <target> | <kind: unmanaged|edited> | <projected source path> | <add flags>
 
 Candidate scope:
 - dotfiles directly in `$HOME` (entries starting with `.`)
@@ -79,33 +98,33 @@ filenames matching `secret|token|credential|password`, or content matching
 `BEGIN [A-Z]*PRIVATE KEY`, `ghp_`, `ghs_`, `glpat-`, `sk-`, `AKIA`, `AIza`.
 Never print secret values; report filenames and reasons only.
 
-## Git workflows
+## Workflow: add -> commit
 
-### Audit
-Inspect git state in the source repo:
-- `git status --short`, `git diff --stat`, `git diff --cached --stat`, `git log --oneline -10`
-- report staged / unstaged / untracked / deletions separately
+The chezmoi workflow is two steps. `add` captures and stages a user-selected
+batch; the generic `/commit` (commit skill) creates the commit. There is no
+chezmoi-specific audit/stage/commit pipeline.
 
-Group changes by the top-level target application/domain: `dot_config/<app>/...`
--> group `<app>`; `dot_tmux.conf` -> tmux; `dot_zshrc` -> zsh. Chezmoi metadata
-(`.chezmoiignore`, `.chezmoiversion`, `.chezmoiremove`, `.chezmoidata.*`,
-`.chezmoitemplates/`) -> group `chezmoi meta`. Suspicious files -> own bucket
-`Suspicious/unclassified`. Generated/cache files -> `Generated/cache`
-(recommend leaving uncommitted). Do not force unrelated files together.
-
-Propose numbered groups; each becomes one logical commit.
-
-### Stage
-Stage exactly one group with explicit pathspecs only:
+### Add
+`/chezmoi/add` does discovery, selection, and capture:
+- inject the scan table via the scan script
+- present unmanaged and edited (deployment-pending) candidates
+- user multi-selects the batch; `chezmoi add <target>` with flags
+- stage the exact source paths that were added, using the path-scoped form:
 
     git add -- <path1> <path2> ...
 
-Never use `git add -A`, `git add .`, or `git add -u`. For deletions use the
-path-scoped form `git add -A -- <path>`. Leave pre-existing staged changes and
-unrelated files untouched.
+Never `git add -A`, `git add .`, or `git add -u`. For deletions use
+`git add -A -- <path>`. Leave pre-existing staged changes and unrelated files
+untouched.
 
 ### Commit
-Commit via the generic `/commit` command. Never push.
+Run the generic `/commit` command (commit skill) on the staged batch. One
+commit per batch; never push. If a batch is heterogeneous and must be split,
+`/commit` can be re-run per subset.
+
+### Status
+`/chezmoi/status` is read-only: scan table plus `git status` in the source
+repo, for deciding batches before adding.
 
 ## Hard constraints
 
