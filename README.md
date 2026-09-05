@@ -32,18 +32,40 @@ small number of purpose-built subagents cover work that is risky-by-adjacency
 ### Human-controlled
 
 Commits, pushes, and merges remain under explicit developer approval. This is
-enforced in configuration — destructive git operations are denied or gated — not
-left to convention.
+enforced in the machine-local `opencode.jsonc` (managed by chezmoi) — destructive
+git operations are denied or gated — not left to convention.
 
 ## What's here
 
+Installable content lives in the `config/` payload folder, which maps 1:1 onto
+the global opencode config directory (`~/.config/opencode`).
+
 | Piece | Contents |
 |---|---|
-| **Skills** | `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
-| **Commands** | `commit`, `commit-propose`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
-| **Agents** | `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents) |
-| **Config** | `opencode.jsonc` — permission rules gating destructive git ops, glab MCP |
-| **Docs** | per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture notes |
+| **Skills** | `config/skills/` — `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
+| **Commands** | `config/commands/` — `commit`, `commit-propose`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
+| **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents) |
+| **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
+| **Docs** | `config/docs/` — per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture notes |
+
+Machine-specific opencode configuration (`opencode.jsonc` — model selection,
+permission rules, MCP servers) is **not** part of this repo; it is managed per
+machine via chezmoi so work and personal setups can differ.
+
+## Install / deploy
+
+The `Makefile` syncs the payload into the global opencode config directory:
+
+```sh
+make install
+```
+
+This runs a single `rsync -a --delete --delete-excluded config/ "$(CONFIG_DIR)/"`,
+where `CONFIG_DIR` defaults to `$XDG_CONFIG_HOME/opencode` (falling back to
+`~/.config/opencode`). Local-only files that live alongside the installed
+content (`cli.json`, `service.json`, `node_modules/`, `package.json`,
+`package-lock.json`) are preserved. `opencode.jsonc` is intentionally not
+touched — it belongs to chezmoi.
 
 ## Shaped workflows
 
@@ -58,8 +80,8 @@ The commands compose into a few well-worn chains:
   and Spec axes with parallel subagents.
 
 Per-repo tracking setup is bootstrapped by `setup-engineering`, which writes
-`docs/agents/issue-tracker.md` and `docs/agents/domain.md` that the commands
-and skills read.
+`config/docs/agents/issue-tracker.md` and `config/docs/agents/domain.md` that
+the commands and skills read.
 
 ## Status
 
