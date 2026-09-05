@@ -6,10 +6,10 @@ at the repository root (`make install`). It maps 1:1 onto that directory.
 
 ## What's installed
 
-- **skills/** — behavior skills loaded as opencode skills
-- **commands/** — custom slash commands
-- **agents/** — custom read-only subagents, plus `templates/` seed docs read by
-  the `setup-engineering` command
+- **skills/** — behavior skills loaded as opencode skills (e.g. `chezmoi`,
+  `commit`), plus the `chezmoi` scan script under `skills/chezmoi/scripts/`
+- **commands/** — custom slash commands, including the `/chezmoi/add` and
+  `/chezmoi/status` workflow
 - **bin/** — helper scripts, e.g. `gcommit`
 
 ## Machine-local config
