@@ -15,4 +15,4 @@ install:
 	rsync -a --delete $(EXCLUDE) $(PAYLOAD)/ $(CONFIG_DIR)/
 
 dry-run:
-	rsync -an --delete $(EXCLUDE) $(PAYLOAD)/ $(CONFIG_DIR)/
+	rsync -anv --delete $(EXCLUDE) $(PAYLOAD)/ $(CONFIG_DIR)/
