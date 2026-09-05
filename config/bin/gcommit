@@ -6,7 +6,24 @@ if git diff --cached --quiet 2>/dev/null; then
   exit 1
 fi
 
-msg="$(opencode run --command commit-propose "$@" 2>/dev/null)" || exit 1
+retries="${GCOMMIT_RETRIES:-3}"
+delay="${GCOMMIT_RETRY_DELAY:-3}"
+
+msg=""
+for ((i = 1; i <= retries; i++)); do
+  model_args=()
+  if ((i > 1)); then
+    model_args=(--model opencode/big-pickle)
+  fi
+  if msg="$(opencode run "${model_args[@]}" --command commit-propose "$@" 2>/dev/null)" && [[ -n "$msg" ]]; then
+    break
+  fi
+  if ((i < retries)); then
+    echo "gcommit: attempt $i failed, retrying in ${delay}s..." >&2
+    sleep "$delay"
+  fi
+done
+
 if [[ -z "$msg" ]]; then
   echo "no message produced (try in a git repo)" >&2
   exit 1
