@@ -2,6 +2,22 @@
   "$schema": "https://opencode.ai/config.json",
   "lsp": true,
 
+  "small_model": "opencode/ling-3.0-flash-fin-free",
+
+  "provider": {
+    "opencode": {
+      "models": {
+        "ling-3.0-flash-fin-free": {
+          "variants": {
+            "instruct": {
+              "reasoningEffort": "none"
+            }
+          }
+        }
+      }
+    }
+  },
+
   "permission": {
     "bash": {
       "*": "allow",

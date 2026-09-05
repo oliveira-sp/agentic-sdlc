@@ -1,6 +1,7 @@
 ---
 description: Print a Conventional Commit message for the staged changes (plain text, for piping into `git commit --edit -F -`)
 model: opencode/ling-3.0-flash-fin-free
+variant: instruct
 ---
 
 You are `/commit-propose`. Produce a Conventional Commit message from the
