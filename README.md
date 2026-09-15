@@ -64,12 +64,14 @@ make install     # apply the sync
 make dry-run     # show what would change, without touching anything
 ```
 
-This runs `rsync -a --delete config/ "$(CONFIG_DIR)/"`, where `CONFIG_DIR`
+This runs `rsync -a config/ "$(CONFIG_DIR)/"`, where `CONFIG_DIR`
 defaults to `$XDG_CONFIG_HOME/opencode` (falling back to `~/.config/opencode`).
-Local-only files that live alongside the installed content (`opencode.jsonc`,
-`cli.json`, `service.json`, `node_modules/`, `package.json`,
-`package-lock.json`) are excluded from the sync and preserved. `opencode.jsonc`
-is intentionally not touched — it belongs to chezmoi.
+The sync is additive: it copies and overwrites payload files but never
+deletes, so machine-local files that live alongside the installed content
+(`opencode.jsonc`, `cli.json`, `service.json`, `node_modules/`,
+`package.json`, `package-lock.json`, `gcommit.env`) are left untouched.
+`opencode.jsonc` belongs to chezmoi. Files removed from `config/` remain in
+the installed directory until deleted manually.
 
 ## Shaped workflows
 
