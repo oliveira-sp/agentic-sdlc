@@ -6,15 +6,30 @@ if git diff --cached --quiet 2>/dev/null; then
   exit 1
 fi
 
+config_dir="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
+env_file="${GCOMMIT_ENV_FILE:-$config_dir/gcommit.env}"
+if [[ -f "$env_file" ]]; then
+  source "$env_file"
+fi
+
 retries="${GCOMMIT_RETRIES:-3}"
 delay="${GCOMMIT_RETRY_DELAY:-3}"
 
+if [[ -n "${GCOMMIT_MODEL:-}" && "${GCOMMIT_MODEL}" != */* ]]; then
+  echo "gcommit: GCOMMIT_MODEL must be provider/model (check quoting in $env_file)" >&2
+  exit 1
+fi
+
+model_args=()
+if [[ -n "${GCOMMIT_MODEL:-}" ]]; then
+  model_args+=(--model "$GCOMMIT_MODEL")
+fi
+if [[ -n "${GCOMMIT_VARIANT:-}" ]]; then
+  model_args+=(--variant "$GCOMMIT_VARIANT")
+fi
+
 msg=""
 for ((i = 1; i <= retries; i++)); do
-  model_args=()
-  if ((i > 1)); then
-    model_args=(--model opencode/big-pickle)
-  fi
   if msg="$(opencode run "${model_args[@]}" --command commit-propose "$@" 2>/dev/null)" && [[ -n "$msg" ]]; then
     break
   fi
