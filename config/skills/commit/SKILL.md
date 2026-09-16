@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Create a Conventional Commit from staged changes. Use when asked to commit, or when a workflow (e.g. /chezmoi/stage) hands off to commit.
+description: Create a Conventional Commit from staged changes. Use when asked to commit, or when a workflow (e.g. /chezmoi/add) hands off to commit.
 compatibility: opencode
 ---
 
@@ -8,9 +8,11 @@ Create a Conventional Commit for the staged changes.
 
 ## Gather context
 
-Run the bundled snapshot script:
+If a commit-context snapshot is already in your context (the `/commit`
+command embeds one), use it and do not re-run the script. Otherwise run the
+bundled snapshot script:
 
-    bash ~/.config/opencode/skills/commit/scripts/commit-context.sh [--chezmoi | DIR]
+    bash ${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh [--chezmoi | DIR]
 
 - Omit arguments to target the current repo (cwd).
 - Use `--chezmoi` for dotfiles flows (resolves `chezmoi source-path`).

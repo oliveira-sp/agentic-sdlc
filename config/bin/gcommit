@@ -44,5 +44,4 @@ if [[ -z "$msg" ]]; then
   exit 1
 fi
 
-msg="$(printf '%s\n' "$msg" | sed '/^```$/d')"
 printf '%s\n' "$msg" | git commit --edit -F -
