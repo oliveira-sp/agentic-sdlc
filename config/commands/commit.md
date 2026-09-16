@@ -9,5 +9,5 @@ Context for the current repo:
 
 Note: this snapshot targets the repo where the command was launched. If the
 commit target differs from the current directory (for example a chezmoi
-handoff), re-run the script yourself with `--chezmoi` or an explicit `DIR` and
-prefer its output.
+handoff), re-run the script yourself with an explicit `DIR` (e.g.
+`$(chezmoi source-path)`) and prefer its output.

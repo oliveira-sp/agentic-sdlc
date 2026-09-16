@@ -1,15 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [[ "${1:-}" == "--chezmoi" ]]; then
-  if ! command -v chezmoi >/dev/null 2>&1; then
-    echo "ERROR: --chezmoi requested but chezmoi is not on PATH" >&2
-    exit 1
-  fi
-  DIR="$(chezmoi source-path)"
-else
-  DIR="${1:-.}"
-fi
+DIR="${1:-.}"
 
 if ! git -C "$DIR" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   echo "ERROR: not a git repository: $DIR" >&2

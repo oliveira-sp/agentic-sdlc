@@ -12,13 +12,13 @@ If a commit-context snapshot is already in your context (the `/commit`
 command embeds one), use it and do not re-run the script. Otherwise run the
 bundled snapshot script:
 
-    bash ${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh [--chezmoi | DIR]
+    bash ${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh [DIR]
 
 - Omit arguments to target the current repo (cwd).
-- Use `--chezmoi` for dotfiles flows (resolves `chezmoi source-path`).
-- Pass an explicit `DIR` for any other target repo.
+- Pass an explicit `DIR` for any other target repo (for dotfiles flows, pass
+  the chezmoi source path, e.g. `$(chezmoi source-path)`).
 - Prefer the script's output over ad-hoc `git` calls. If it errors (`ERROR:
-  not a git repository` / `--chezmoi` unavailable), stop and surface the error.
+  not a git repository`), stop and surface the error.
 
 The snapshot shows: top-level & branch, `status --short`, recent commit style,
 staged diff stat, the full staged diff, and unstaged filenames only.
