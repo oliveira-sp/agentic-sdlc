@@ -105,7 +105,7 @@ Extract:
 
 ## GitLab context (if available)
 
-If GitLab MCP or GitLab access is configured, inspect:
+If GitLab access is configured, use the `gitlab-ro` skill and `glab` to inspect:
 
 * project metadata
 * issue templates

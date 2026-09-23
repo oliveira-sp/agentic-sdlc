@@ -15,7 +15,8 @@ opencode's primitives.
 
 We already have locally: `skills/grill-me`, `skills/grilling`, `skills/handoff` (ported
 Productivity skills) and a custom `chezmoi` skill + `command/chezmoi/*` + `agent/chezmoi/*`.
-We also have a GitLab MCP (`glab mcp serve`) wired in `opencode.jsonc`.
+GitLab access now uses the `gitlab-ro`, `gitlab-wr`, and `gitlab-mr` skills
+with the `glab` CLI instead of an always-on MCP server.
 
 ## 2. Resolved decisions
 
