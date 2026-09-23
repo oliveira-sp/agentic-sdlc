@@ -62,6 +62,8 @@ The `Makefile` syncs the payload into the global opencode config directory:
 ```sh
 make install     # apply the sync
 make dry-run     # show what would change, without touching anything
+make status      # list payload files that differ or are not installed
+make diff        # show line-by-line differences for payload files
 ```
 
 This runs `rsync -a config/ "$(CONFIG_DIR)/"`, where `CONFIG_DIR`
@@ -72,6 +74,12 @@ deletes, so machine-local files that live alongside the installed content
 `package.json`, `package-lock.json`, `gcommit.env`) are left untouched.
 `opencode.jsonc` belongs to chezmoi. Files removed from `config/` remain in
 the installed directory until deleted manually.
+
+`status` and `diff` are read-only viewers that compare files in the repository
+payload against their installed counterparts. `diff` pages interactive output
+through `less`, preserving colors and quitting automatically when it fits on
+screen. Destination-only, machine-local files are intentionally not reported;
+both commands exit successfully when differences are found.
 
 ## Shaped workflows
 
