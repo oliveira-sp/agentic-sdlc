@@ -5,6 +5,9 @@
       "~/.config/opencode/**": "allow",
       "*": "ask"
     },
+    "read": {
+      "~/.config/opencode/**": "allow"
+    },
     "edit": {
       "~/.config/opencode/**": "deny"
     }
