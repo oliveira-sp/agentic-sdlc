@@ -12,10 +12,10 @@ if [[ -f "$env_file" ]]; then
   source "$env_file"
 fi
 
-command_file="$config_dir/commands/commit-propose.md"
+prompt_file="$config_dir/skills/commit/commit-prompt.md"
 context_script="$config_dir/skills/commit/scripts/commit-context.sh"
-if [[ ! -r "$command_file" ]]; then
-  echo "gcommit: cannot read command prompt: $command_file" >&2
+if [[ ! -r "$prompt_file" ]]; then
+  echo "gcommit: cannot read commit prompt: $prompt_file" >&2
   exit 1
 fi
 if [[ ! -r "$context_script" ]]; then
@@ -32,40 +32,80 @@ if [[ -n "${GCOMMIT_MODEL:-}" && "${GCOMMIT_MODEL}" != */* ]]; then
   exit 1
 fi
 
-model_args=()
-if [[ -n "${GCOMMIT_MODEL:-}" ]]; then
-  model_args+=(--model "$GCOMMIT_MODEL")
+rules="$(cat "$prompt_file")"
+context="$(bash "$context_script")"
+
+model="${GCOMMIT_MODEL:-}"
+if [[ -z "$model" ]]; then
+  if ! command -v jq >/dev/null 2>&1; then
+    echo "gcommit: jq is required to resolve the agent's model" >&2
+    exit 1
+  fi
+  agent_url="$(jq -rn --arg agent "$agent" --arg directory "$PWD" '
+    "/api/agent/" + ($agent | @uri) + "?location%5Bdirectory%5D=" + ($directory | @uri)
+  ')"
+  # Pin the full reference: selecting an agent alone can lose its variant.
+  if ! model="$(opencode api get "$agent_url" | jq -er '
+    if .data == null then error("missing agent data")
+    elif .data.model == null then ""
+    else .data.model |
+      (.providerID + "/" + .id) +
+      (if .variant != null and .variant != "" then "#" + .variant else "" end)
+    end
+  ')"; then
+    echo "gcommit: cannot resolve model for agent: $agent" >&2
+    exit 1
+  fi
 fi
 if [[ -n "${GCOMMIT_VARIANT:-}" ]]; then
-  model_args+=(--variant "$GCOMMIT_VARIANT")
+  if [[ -z "$model" ]]; then
+    echo "gcommit: GCOMMIT_VARIANT requires GCOMMIT_MODEL or an agent model" >&2
+    exit 1
+  fi
+  model="${model%%#*}#$GCOMMIT_VARIANT"
 fi
-
-prompt="$(awk '
-  BEGIN { in_frontmatter = 1; delimiters = 0 }
-  in_frontmatter && /^---[[:space:]]*$/ {
-    delimiters++
-    if (delimiters == 2) in_frontmatter = 0
-    next
-  }
-  !in_frontmatter { print }
-' "$command_file")"
-context="$(bash "$context_script")"
-context_directive='!`bash ${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh`'
-prompt="${prompt//"$context_directive"/"$context"}"
+model_args=()
+if [[ -n "$model" ]]; then
+  model_args+=(--model "$model")
+fi
 
 arguments=""
 if (($#)); then
   printf -v arguments '%s ' "$@"
   arguments="${arguments% }"
 fi
-arguments_placeholder='$ARGUMENTS'
-prompt="${prompt//"$arguments_placeholder"/"$arguments"}"
+prompt="$(cat <<EOF
+Generate a commit message from the snapshot below. The output is piped
+verbatim into git commit for the user to edit.
+
+$rules
+
+## Output contract
+
+- Print only the commit message: subject, then (if any) a blank line and body.
+- Your first output character must be the start of the subject line.
+- Plain text: no markdown formatting, no fenced blocks, no commentary before
+  or after, exactly one trailing newline. Plain-text body bullets are allowed.
+- If the snapshot shows no staged changes, print nothing.
+- Do not load any skills or run any tools. Never run git commit, git add,
+  or any mutating command.
+
+## Snapshot
+
+$context
+
+## Caller-supplied context (may be empty)
+
+$arguments
+EOF
+)"
 
 msg=""
 for ((i = 1; i <= retries; i++)); do
-  if msg="$(opencode run --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null)" && [[ -n "$msg" ]]; then
+  if msg="$(opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null)" && [[ -n "${msg//[[:space:]]/}" ]]; then
     break
   fi
+  msg=""
   if ((i < retries)); then
     echo "gcommit: attempt $i failed, retrying in ${delay}s..." >&2
     sleep "$delay"
