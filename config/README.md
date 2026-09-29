@@ -21,7 +21,8 @@ work setups can differ. `make install` never touches it.
 `gcommit.env` (optional, same directory) is sourced by `bin/gcommit` for
 machine-local model selection: `GCOMMIT_MODEL` / `GCOMMIT_VARIANT` pick the
 model and variant for commit-message generation (e.g. a small local model
-with the `instruct` variant at work); `GCOMMIT_RETRIES` /
+with the `instruct` variant at work); `GCOMMIT_AGENT` selects the agent
+(defaults to `commit`); `GCOMMIT_RETRIES` /
 `GCOMMIT_RETRY_DELAY` tune the retry loop. The file is plain shell — quote
 values containing spaces (e.g. `GCOMMIT_MODEL="provider/Spark Medium"`).
 The sync never deletes, so the file is preserved across `make install`.

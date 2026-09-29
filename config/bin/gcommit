@@ -12,8 +12,20 @@ if [[ -f "$env_file" ]]; then
   source "$env_file"
 fi
 
+command_file="$config_dir/commands/commit-propose.md"
+context_script="$config_dir/skills/commit/scripts/commit-context.sh"
+if [[ ! -r "$command_file" ]]; then
+  echo "gcommit: cannot read command prompt: $command_file" >&2
+  exit 1
+fi
+if [[ ! -r "$context_script" ]]; then
+  echo "gcommit: cannot read context script: $context_script" >&2
+  exit 1
+fi
+
 retries="${GCOMMIT_RETRIES:-3}"
 delay="${GCOMMIT_RETRY_DELAY:-3}"
+agent="${GCOMMIT_AGENT:-commit}"
 
 if [[ -n "${GCOMMIT_MODEL:-}" && "${GCOMMIT_MODEL}" != */* ]]; then
   echo "gcommit: GCOMMIT_MODEL must be provider/model (check quoting in $env_file)" >&2
@@ -28,9 +40,30 @@ if [[ -n "${GCOMMIT_VARIANT:-}" ]]; then
   model_args+=(--variant "$GCOMMIT_VARIANT")
 fi
 
+prompt="$(awk '
+  BEGIN { in_frontmatter = 1; delimiters = 0 }
+  in_frontmatter && /^---[[:space:]]*$/ {
+    delimiters++
+    if (delimiters == 2) in_frontmatter = 0
+    next
+  }
+  !in_frontmatter { print }
+' "$command_file")"
+context="$(bash "$context_script")"
+context_directive='!`bash ${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh`'
+prompt="${prompt//"$context_directive"/"$context"}"
+
+arguments=""
+if (($#)); then
+  printf -v arguments '%s ' "$@"
+  arguments="${arguments% }"
+fi
+arguments_placeholder='$ARGUMENTS'
+prompt="${prompt//"$arguments_placeholder"/"$arguments"}"
+
 msg=""
 for ((i = 1; i <= retries; i++)); do
-  if msg="$(opencode run "${model_args[@]}" --command commit-propose "$@" 2>/dev/null)" && [[ -n "$msg" ]]; then
+  if msg="$(opencode run --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null)" && [[ -n "$msg" ]]; then
     break
   fi
   if ((i < retries)); then
