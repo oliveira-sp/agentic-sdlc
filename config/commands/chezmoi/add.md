@@ -1,5 +1,5 @@
 ---
-description: Capture config files into chezmoi source (unmanaged or edited in place) and stage them for /commit
+description: Capture config files into chezmoi source (unmanaged or edited in place) and stage them for the commit skill
 ---
 
 You are executing `/chezmoi/add`.
@@ -46,7 +46,8 @@ The table columns are: `target | kind | projected source path | add flags | note
 
 ## Hand off
 
-Tell the user to run `/commit` (generic commit skill) to create the commit.
+Tell the user to ask a tool-capable agent to use the **commit** skill on the
+staged batch in the chezmoi source repo to propose and create the commit.
 Do not commit, push, reset, restore, or delete anything.
 
 ## Constraints

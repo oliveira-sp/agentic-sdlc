@@ -1,6 +1,6 @@
 ---
 name: chezmoi
-description: How to use the chezmoi CLI for dotfiles management: source repo and path mapping, status semantics, add flags, discovery of unmanaged and edited configs, and the add -> /commit workflow. Use for any chezmoi task, including the /chezmoi/* commands.
+description: How to use the chezmoi CLI for dotfiles management: source repo and path mapping, status semantics, add flags, discovery of unmanaged and edited configs, and the add -> commit skill workflow. Use for any chezmoi task, including the /chezmoi/* commands.
 ---
 
 # Chezmoi
@@ -101,7 +101,7 @@ Never print secret values; report filenames and reasons only.
 ## Workflow: add -> commit
 
 The chezmoi workflow is two steps. `add` captures and stages a user-selected
-batch; the generic `/commit` (commit skill) creates the commit. There is no
+batch; the generic commit skill creates the commit after confirmation. There is no
 chezmoi-specific audit/stage/commit pipeline.
 
 ### Add
@@ -118,9 +118,11 @@ Never `git add -A`, `git add .`, or `git add -u`. For deletions use
 untouched.
 
 ### Commit
-Run the generic `/commit` command (commit skill) on the staged batch. One
+Use the generic commit skill from a tool-capable agent on the staged batch in
+the chezmoi source repo. Alternatively, run `/commit` from that repo for its
+staged-only commit / edit / cancel workflow. One
 commit per batch; never push. If a batch is heterogeneous and must be split,
-`/commit` can be re-run per subset.
+the commit skill can be re-run per subset.
 
 ### Status
 `/chezmoi/status` is read-only: scan table plus `git status` in the source
