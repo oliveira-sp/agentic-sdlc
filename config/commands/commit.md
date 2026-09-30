@@ -27,15 +27,15 @@ path; do not stage, unstage, or modify files.
 3. Ask: "Commit this message? (commit / edit / cancel)" and wait for the user.
 4. On **edit**, ask for the desired changes, present the revised message, and
    offer commit / edit / cancel again. On **cancel**, stop.
-5. On **commit** (or an explicit yes), refresh the snapshot for the same target
+5. On **commit** (or an explicit yes), refresh the snapshot for the current
    repository and verify that the staged diff still matches the proposal:
 
-       bash "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh" "$DIR"
+        bash "${XDG_CONFIG_HOME:-$HOME/.config}/opencode/skills/commit/scripts/commit-context.sh"
 
    If the staged diff changed, revise the proposal and ask for confirmation
    again. Otherwise create the approved commit using a quoted heredoc:
 
-       git -C "$DIR" commit -F - <<'COMMIT_MESSAGE'
+       git commit -F - <<'COMMIT_MESSAGE'
        <approved message>
        COMMIT_MESSAGE
 
