@@ -15,7 +15,7 @@ opencode's primitives.
 
 We already have locally: `skills/grill-me`, `skills/grilling`, `skills/handoff` (ported
 Productivity skills) and a custom `chezmoi` skill + `command/chezmoi/*` + `agent/chezmoi/*`.
-GitLab access now uses the `gitlab-ro`, `gitlab-wr`, and `gitlab-mr` skills
+GitLab access now uses a single `glab` skill
 with the `glab` CLI instead of an always-on MCP server.
 
 ## 2. Resolved decisions

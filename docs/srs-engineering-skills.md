@@ -114,7 +114,7 @@ deferred) without the upstream branding or its unsupported primitives.
   - `setup-engineering`: run in a scratch repo; assert `docs/agents/issue-tracker.md` exists and
     `AGENTS.md` gained the agent-skills block; tracker type recorded as `gitlab`.
   - `to-spec`: run on a conversation; assert a GitLab issue is created with label `ready-for-agent`
-    (via `glab` and the `gitlab-wr` skill).
+    (via the `glab` skill).
   - `to-tickets`: run on a plan; assert N GitLab issues created in dependency order, each with
     `ready-for-agent`, and blocking links present via `glab issue link --link-type blocks`.
   - `tdd`: in a small repo, assert the agent writes a failing test first, then makes it pass
