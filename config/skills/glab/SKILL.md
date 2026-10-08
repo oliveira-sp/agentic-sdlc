@@ -1,17 +1,23 @@
 ---
 name: glab
-description: Work with GitLab using the glab CLI — read projects, issues, work items,
-  pipelines, and releases; review merge requests (diffs, discussions, comments,
-  approvals); and manage issues and work items (create, update, label, comment, close).
-  Use for any GitLab task.
+description: Work with GitLab using the glab CLI — projects, issues, merge requests,
+  pipelines, releases, and more. Use for any GitLab task.
 compatibility: opencode
 ---
 
 # GitLab via glab
 
-`glab` covers all GitLab interaction. Discover exact commands instead of guessing:
-run `glab --help` for command groups, then `glab <group> --help` and
-`glab <group> <sub> --help` before using any command or flag.
+All GitLab interaction goes through `glab`: never raw `curl`/HTTP requests,
+GitLab web fetches, or other CLIs — including links the user pastes; resolve
+those with `glab` instead of fetching the page.
+
+Discover exact commands instead of guessing: run `glab --help` for command
+groups, then `glab <group> --help` and `glab <group> <sub> --help` before
+using any command or flag.
+
+Use a dedicated subcommand whenever one exists. `glab api` is a last resort:
+use it only when no subcommand covers the task, and state the endpoint and
+why no subcommand fit.
 
 ## Command map
 
@@ -22,15 +28,19 @@ run `glab --help` for command groups, then `glab <group> --help` and
 - CI/CD: `glab ci list|status|get|trace`, `glab job`
 - Metadata: `glab label`, `glab milestone`, `glab iteration`, `glab user`, `glab todo`
 - Releases: `glab release list|view` — Search: `glab search`
-- Anything else: `glab api <endpoint>` (see gotchas)
+- Last resort: `glab api <endpoint>` — only when no subcommand fits (see gotchas)
 
 ## Scope of change by intent
 
 - Read-only question: never create, edit, close, delete, trigger, or retry anything.
-- MR review: inspect and comment (`glab mr note create`); approve/revoke only on
-  explicit request; never merge, create, edit, rebase, close, or delete MRs.
-- Requested change: make only that change on the confirmed target; verify success
-  before retrying an ambiguous failure.
+- MRs are review-and-comment only: inspect, discuss (`glab mr note create`), and
+  approve/revoke on explicit request. Never create, update, merge, rebase,
+  close, or delete MRs — out of scope for this skill.
+- Requested change: for issues and work items, make only the change the user
+  asked for, on the confirmed target; verify success before retrying an
+  ambiguous failure.
+- Deletion and bulk changes: only on an explicit user request; say what will
+  be affected before running.
 
 ## Gotchas
 
