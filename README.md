@@ -42,8 +42,8 @@ the global opencode config directory (`~/.config/opencode`).
 
 | Piece | Contents |
 |---|---|
-| **Skills** | `config/skills/` — `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
-| **Commands** | `config/commands/` — `commit`, `commit-propose`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
+| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
+| **Commands** | `config/commands/` — `commit`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
 | **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents), plus `templates/` seed docs used by `setup-engineering` |
 | **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
 
