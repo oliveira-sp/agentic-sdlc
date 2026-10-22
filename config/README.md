@@ -31,6 +31,9 @@ default applies.
 `GCOMMIT_VARIANT`, when set, overrides the variant on that model reference;
 it requires either an explicit model or one configured on the agent.
 `GCOMMIT_RETRIES` / `GCOMMIT_RETRY_DELAY` tune the generation retry loop.
+`GCOMMIT_DEBUG=1` (or `gcommit --debug`) prints the resolved model and the
+whole prompt to stderr before sending it. Flags are consumed by the script;
+pass `--` to forward arguments that look like flags.
 The file is plain shell — quote values containing spaces.
 The sync never deletes, so the file is preserved across `make install`.
 

@@ -69,11 +69,27 @@ if [[ -n "$model" ]]; then
   model_args+=(--model "$model")
 fi
 
+debug="${GCOMMIT_DEBUG:-0}"
+context_args=()
+while (($#)); do
+  case "$1" in
+    -d | --debug) debug=1 ;;
+    --)
+      shift
+      context_args+=("$@")
+      break
+      ;;
+    *) context_args+=("$1") ;;
+  esac
+  shift
+done
+
 arguments=""
-if (($#)); then
-  printf -v arguments '%s ' "$@"
+if ((${#context_args[@]})); then
+  printf -v arguments '%s ' "${context_args[@]}"
   arguments="${arguments% }"
 fi
+
 prompt="$(cat <<EOF
 Generate a commit message from the snapshot below. The output is piped
 verbatim into git commit for the user to edit.
@@ -99,6 +115,15 @@ $context
 $arguments
 EOF
 )"
+
+if [[ "$debug" == 1 ]]; then
+  {
+    echo "gcommit: agent=$agent model=${model:-<agent default>} retries=$retries delay=$delay"
+    echo "gcommit: ---- prompt ----"
+    printf '%s\n' "$prompt"
+    echo "gcommit: ------------------"
+  } >&2
+fi
 
 msg=""
 for ((i = 1; i <= retries; i++)); do
