@@ -42,7 +42,7 @@ the global opencode config directory (`~/.config/opencode`).
 
 | Piece | Contents |
 |---|---|
-| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `grill-me`, `grilling`, `handoff`, `tdd` |
+| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grill-me`, `grilling`, `handoff`, `mr-from-issue`, `tdd` |
 | **Commands** | `config/commands/` — `commit`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
 | **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents), plus `templates/` seed docs used by `setup-engineering` |
 | **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
@@ -88,6 +88,9 @@ The commands compose into a few well-worn chains:
 - **Ideation to tickets** — `to-spec` publishes a spec as a `ready-for-agent`
   issue; `to-tickets` breaks it into blocking tracer-bullet tickets in
   dependency order.
+- **Issue to MR** — `mr-from-issue` creates the issue's remote branch and
+  draft MR (gitflow prefix, develop-based) before implementation, then hands
+  the branch off to a git worktree for isolated work.
 - **Dotfiles** — `chezmoi/add` (discover + add) → `chezmoi/audit` (propose
   logical commit groups) → `chezmoi/stage N` (stage one group) → `commit`.
 - **Review** — the `code-review` skill reviews a fixed point along Standards
