@@ -15,7 +15,7 @@ skill bundles instructions for one capability and the triggers that fire it:
 - `code-review` — review changes along two axes (Standards + Spec)
 - `tdd` — red-green-refactor and integration-test workflows
 - `handoff` — compact a conversation into a handoff document
-- `grilling` / `grill-me` — stress-test a plan or decision
+- `grilling` — stress-test a plan or decision, one question at a time
 - `chezmoi` — dotfiles management via the chezmoi CLI
 
 ### Command-driven
@@ -27,7 +27,7 @@ not stages you must pass through. They stay consistent, auditable, and per-repo.
 
 Most work happens in the built-in `build`, `plan`, and `explore` agents. A
 small number of purpose-built subagents cover work that is risky-by-adjacency
-(scans of git and `$HOME`), and they are read-only.
+(scans of git, `$HOME`, or the issue tracker), and they are read-only.
 
 ### Human-controlled
 
@@ -42,14 +42,15 @@ the global opencode config directory (`~/.config/opencode`).
 
 | Piece | Contents |
 |---|---|
-| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grill-me`, `grilling`, `handoff`, `mr-from-issue`, `tdd` |
-| **Commands** | `config/commands/` — `commit`, `project-discover`, `setup-engineering`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/audit`, `chezmoi/stage` |
-| **Agents** | `config/agents/` — `chezmoi-commit-prep`, `chezmoi-discover` (read-only subagents), plus `templates/` seed docs used by `setup-engineering` |
+| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grilling`, `handoff`, `mr-create`, `mr-from-issue`, `tdd` |
+| **Commands** | `config/commands/` — `commit`, `project-discover`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/status` |
+| **Agents** | `config/agents/` — `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
 | **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
 
-Repo documentation (not installed) lives at the top-level `docs/`:
-per-repo issue-tracker and domain-doc guidance (`docs/agents/`), architecture
-notes (`docs/architecture/`), and the SDR/SRS engineering-skills specs.
+Repo documentation (not installed) lives at the top-level `docs/`: this
+repo's own issue-tracker and domain-doc guidance (`docs/agents/`, which also
+serves as the reference layout for consuming repos) and architecture notes
+(`docs/architecture/`).
 
 Machine-specific opencode configuration (`opencode.jsonc` — model selection,
 permission rules, MCP servers) is **not** part of this repo; it is managed per
@@ -88,17 +89,18 @@ The commands compose into a few well-worn chains:
 - **Ideation to tickets** — `to-spec` publishes a spec as a `ready-for-agent`
   issue; `to-tickets` breaks it into blocking tracer-bullet tickets in
   dependency order.
-- **Issue to MR** — `mr-from-issue` creates the issue's remote branch and
-  draft MR (gitflow prefix, develop-based) before implementation, then hands
-  the branch off to a git worktree for isolated work.
-- **Dotfiles** — `chezmoi/add` (discover + add) → `chezmoi/audit` (propose
-  logical commit groups) → `chezmoi/stage N` (stage one group) → `commit`.
+- **Issue to MR** — the `mr-from-issue` and `mr-create` skills create the
+  issue's remote branch and draft MR (gitflow prefix, develop-based) before
+  implementation, then hand the branch off to a git worktree for isolated work.
+- **Dotfiles** — `chezmoi/status` (read-only overview of edited, unmanaged,
+  and git-pending files) → `chezmoi/add` (capture the selected files) →
+  `commit`.
 - **Review** — the `code-review` skill reviews a fixed point along Standards
   and Spec axes with parallel subagents.
 
-Per-repo tracking setup is bootstrapped by `setup-engineering`, which writes
-`docs/agents/issue-tracker.md` and `docs/agents/domain.md` (in each consuming
-repo) that the commands and skills read.
+Each consuming repo carries its own `docs/agents/issue-tracker.md` and
+`docs/agents/domain.md`, which the commands and skills read at runtime; the
+copies in this repo's `docs/agents/` show the expected shape.
 
 ## Status
 

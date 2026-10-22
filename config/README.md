@@ -40,9 +40,10 @@ The sync never deletes, so the file is preserved across `make install`.
 ## How to use
 
 1. Clone the repo and run `make install` (or `make dry-run` to preview).
-2. `setup-engineering` scaffolds `docs/agents/issue-tracker.md` and
-   `docs/agents/domain.md` into each repo before using the engineering
-   commands (`to-spec`, `to-tickets`, `code-review`).
+2. Tracker-wired commands and skills (`to-spec`, `to-tickets`, `code-review`)
+   read `docs/agents/issue-tracker.md` and `docs/agents/domain.md` from the
+   consuming repo and stop with guidance when those files are missing. Seed
+   them per repo, following the reference copies in this repo's `docs/agents/`.
 
 ## Commit workflows
 
@@ -74,10 +75,6 @@ it as a primary agent with the desired `provider/model#variant` in
 execute the approved Git commit; a blanket deny-all agent rule blocks those
 steps. Neither entry point loads skills. Use the commit skill from a
 tool-capable agent for conversational staging-and-confirmation workflows.
-
-Run `python3 scripts/test-gcommit.py -v` from the repository root to check prompt
-expansion and `gcommit` behavior using temporary Git repositories and a stub
-model CLI.
 
 `/commit-propose` has been retired. Because `make install` is additive, remove
 any old installed command file once after updating:
