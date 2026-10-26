@@ -15,7 +15,8 @@ esac
 
 compare_files() {
   local color="$1"
-  local file rel installed label
+  local file rel installed label status
+  local -a added=() modified=()
 
   while IFS= read -r -d '' file; do
     rel="${file#"$payload"/}"
@@ -23,23 +24,53 @@ compare_files() {
 
     if [[ "$mode" == "status" ]]; then
       if [[ ! -f "$installed" ]]; then
-        printf 'not installed: %s\n' "$rel"
+        added+=("$rel")
       elif ! cmp -s "$installed" "$file"; then
-        printf 'differ: %s\n' "$rel"
+        modified+=("$rel")
       fi
       continue
     fi
 
-    label="installed: $rel"
+    if [[ -f "$installed" ]] && cmp -s "$installed" "$file"; then
+      continue
+    fi
+
+    printf 'diff --git a/%s b/%s\n' "$rel" "$rel"
+    label="a/$rel"
     if [[ ! -f "$installed" ]]; then
       installed=/dev/null
       label=/dev/null
+      if [[ -x "$file" ]]; then
+        printf 'new file mode 100755\n'
+      else
+        printf 'new file mode 100644\n'
+      fi
     fi
 
+    status=0
     diff -u --color="$color" \
-      --label "$label" --label "repo: $rel" \
-      "$installed" "$file" || true
+      --label "$label" --label "b/$rel" \
+      "$installed" "$file" || status=$?
+    if (( status > 1 )); then
+      return "$status"
+    fi
   done < <(find "$payload" -type f -print0 | sort -z)
+
+  if [[ "$mode" == "status" ]]; then
+    if (( ${#added[@]} + ${#modified[@]} == 0 )); then
+      printf 'Nothing to install (installed files match repository payload).\n'
+      return
+    fi
+
+    printf 'Changes to be installed:\n'
+    printf '  (installed files → repository payload; run "make install" to apply)\n\n'
+    for rel in "${added[@]}"; do
+      printf '\tnew file:   %s\n' "$rel"
+    done
+    for rel in "${modified[@]}"; do
+      printf '\tmodified:   %s\n' "$rel"
+    done
+  fi
 }
 
 if [[ "$mode" == "diff" && -t 1 ]]; then
