@@ -10,7 +10,7 @@ at the repository root (`make install`). It maps 1:1 onto that directory.
   `commit`), plus the `chezmoi` scan script under `skills/chezmoi/scripts/`
 - **commands/** — custom slash commands, including the `/chezmoi/add` and
   `/chezmoi/status` workflow
-- **bin/** — helper scripts, e.g. `gcommit`
+- **bin/** — helper scripts: `gcommit`
 
 ## Machine-local config
 
@@ -31,8 +31,15 @@ default applies.
 `GCOMMIT_VARIANT`, when set, overrides the variant on that model reference;
 it requires either an explicit model or one configured on the agent.
 `GCOMMIT_RETRIES` / `GCOMMIT_RETRY_DELAY` tune the generation retry loop.
+Failed commands, empty responses, and invalid messages all consume an attempt.
+The script requires a Conventional Commit subject and rejects tool-call or
+reasoning markup, fenced blocks, control characters, and malformed body
+separation. If no valid response is produced, it exits without running Git's
+commit command; it never tries to salvage a message by stripping markup.
 `GCOMMIT_DEBUG=1` (or `gcommit --debug`) prints the resolved model and the
-whole prompt to stderr before sending it. Flags are consumed by the script;
+whole prompt to stderr before sending it, preserves OpenCode's stderr, and
+prints rejected responses. Debug output may contain sensitive repository data.
+Flags are consumed by the script;
 pass `--` to forward arguments that look like flags.
 The file is plain shell — quote values containing spaces.
 The sync never deletes, so the file is preserved across `make install`.
@@ -75,6 +82,16 @@ it as a primary agent with the desired `provider/model#variant` in
 execute the approved Git commit; a blanket deny-all agent rule blocks those
 steps. Neither entry point loads skills. Use the commit skill from a
 tool-capable agent for conversational staging-and-confirmation workflows.
+
+For a message-only `gcommit` agent, configure a dedicated formatter `system`
+prompt and deny all tools. A non-empty `system` replaces OpenCode's default
+coding-agent prompt; permission denial alone does not do that. Such an agent
+is not suitable for `/commit`'s tool-based workflow. Use `GCOMMIT_AGENT` to
+select a separate formatter when both workflows are needed.
+
+Run the isolated script tests from the repository root with
+`python3 scripts/test-gcommit.py`. They mock OpenCode and Git, including the
+commit command, and do not contact a provider or create real commits.
 
 `/commit-propose` has been retired. Because `make install` is additive, remove
 any old installed command file once after updating:

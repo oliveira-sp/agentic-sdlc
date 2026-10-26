@@ -42,10 +42,10 @@ the global opencode config directory (`~/.config/opencode`).
 
 | Piece | Contents |
 |---|---|
-| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grilling`, `handoff`, `mr-create`, `mr-from-issue`, `tdd` |
+| **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grilling`, `handoff`, `tdd` |
 | **Commands** | `config/commands/` — `commit`, `project-discover`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/status` |
 | **Agents** | `config/agents/` — `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
-| **Bin** | `config/bin/` — helper scripts (e.g. `gcommit`) |
+| **Bin** | `config/bin/` — helper scripts (`gcommit`) |
 
 Repo documentation (not installed) lives at the top-level `docs/`: this
 repo's own issue-tracker and domain-doc guidance (`docs/agents/`, which also
@@ -82,6 +82,12 @@ through `less`, preserving colors and quitting automatically when it fits on
 screen. Destination-only, machine-local files are intentionally not reported;
 both commands exit successfully when differences are found.
 
+Output follows Git conventions: `status` groups `new file:` and `modified:`
+entries (or reports that there is nothing to install), and `diff` shows patches
+with `diff --git` headers and `a/` / `b/` paths. The installed files are the
+baseline (`a/`); repository payload files are the proposed result (`b/`), so
+added lines show what `make install` would apply.
+
 ## Shaped workflows
 
 The commands compose into a few well-worn chains:
@@ -89,9 +95,6 @@ The commands compose into a few well-worn chains:
 - **Ideation to tickets** — `to-spec` publishes a spec as a `ready-for-agent`
   issue; `to-tickets` breaks it into blocking tracer-bullet tickets in
   dependency order.
-- **Issue to MR** — the `mr-from-issue` and `mr-create` skills create the
-  issue's remote branch and draft MR (gitflow prefix, develop-based) before
-  implementation, then hand the branch off to a git worktree for isolated work.
 - **Dotfiles** — `chezmoi/status` (read-only overview of edited, unmanaged,
   and git-pending files) → `chezmoi/add` (capture the selected files) →
   `commit`.

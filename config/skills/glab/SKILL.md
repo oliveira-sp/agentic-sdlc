@@ -35,9 +35,6 @@ why no subcommand fit.
 - Read-only question: never create, edit, close, delete, trigger, or retry anything.
 - MR review: inspect, discuss (`glab mr note create`), and approve/revoke only
   on explicit request; never merge, rebase, close, or delete MRs here.
-- MR creation from an issue (branch + draft MR before implementation) is a
-  separate intent: use the `mr-from-issue` skill, which creates the remote
-  branch and draft MR through `glab mr create`.
 - Requested change: for issues and work items, make only the change the user
   asked for, on the confirmed target; verify success before retrying an
   ambiguous failure.

@@ -37,8 +37,6 @@ what it does and when to trigger it:
   question at a time (most-unblocking first).
 - `chezmoi` — the chezmoi CLI for dotfiles: path mapping, status semantics, add
   flags, and the `add`/`status` workflows.
-- `mr-from-issue` / `mr-create` — create the issue's remote source branch and
-  draft MR (Gitflow prefix, develop-based) before implementation, via `glab`.
 
 Skills are the primitive; commands are how they get invoked in a workflow.
 
