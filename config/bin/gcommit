@@ -27,6 +27,11 @@ retries="${GCOMMIT_RETRIES:-3}"
 delay="${GCOMMIT_RETRY_DELAY:-3}"
 agent="${GCOMMIT_AGENT:-commit}"
 
+if [[ ! "$retries" =~ ^[1-9][0-9]*$ ]]; then
+  echo "gcommit: GCOMMIT_RETRIES must be a positive integer" >&2
+  exit 1
+fi
+
 if [[ -n "${GCOMMIT_MODEL:-}" && "${GCOMMIT_MODEL}" != */* ]]; then
   echo "gcommit: GCOMMIT_MODEL must be provider/model (check quoting in $env_file)" >&2
   exit 1
@@ -125,10 +130,52 @@ if [[ "$debug" == 1 ]]; then
   } >&2
 fi
 
+validate_message() {
+  local subject="${1%%$'\n'*}" rest summary
+  local subject_pattern='^[a-z][a-z0-9-]*(\([^()[:cntrl:]]+\))?!?: ([^[:space:]].*)$'
+  validation_error=""
+  if [[ -z "${1//[[:space:]]/}" ]]; then
+    validation_error="empty response"
+  elif printf '%s\n' "$1" | grep -Ei '```|~~~|</?(tool_call(s)?|function|parameter(s)?|think(ing)?|analysis|reasoning|reflection|assistant|command)([[:space:]>:=/]|$)|<\|[^>]*\|>' >/dev/null; then
+    validation_error="tool-call, reasoning, or fenced markup in response"
+  elif printf '%s\n' "$1" | LC_ALL=C grep '[[:cntrl:]]' >/dev/null; then
+    validation_error="control characters in response"
+  elif [[ ! "$subject" =~ $subject_pattern ]]; then
+    validation_error="expected a Conventional Commit subject"
+  else
+    summary="${BASH_REMATCH[2]}"
+    if ((${#summary} >= 72)) || [[ "$summary" == *. || "$summary" == *[[:space:]] ]]; then
+      validation_error="summary must be under 72 characters with no trailing period or whitespace"
+    elif [[ "$1" == *$'\n'* ]]; then
+      rest="${1#*$'\n'}"
+      if [[ "$rest" != $'\n'* ]]; then
+        validation_error="body must be separated from the subject by a blank line"
+      fi
+    fi
+  fi
+  [[ -z "$validation_error" ]]
+}
+
+generate_message() {
+  if [[ "$debug" == 1 ]]; then
+    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt"
+  else
+    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null
+  fi
+}
+
 msg=""
 for ((i = 1; i <= retries; i++)); do
-  if msg="$(opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null)" && [[ -n "${msg//[[:space:]]/}" ]]; then
-    break
+  if msg="$(generate_message)"; then
+    if validate_message "$msg"; then
+      break
+    fi
+    echo "gcommit: attempt $i rejected: $validation_error" >&2
+  else
+    echo "gcommit: attempt $i failed: opencode exited with status $?" >&2
+  fi
+  if [[ "$debug" == 1 && -n "$msg" ]]; then
+    printf 'gcommit: ---- rejected response ----\n%s\ngcommit: ---------------------------\n' "$msg" >&2
   fi
   msg=""
   if ((i < retries)); then
@@ -138,7 +185,7 @@ for ((i = 1; i <= retries; i++)); do
 done
 
 if [[ -z "$msg" ]]; then
-  echo "no message produced (try in a git repo)" >&2
+  echo "gcommit: no valid commit message after $retries attempts; git commit was not run" >&2
   exit 1
 fi
 
