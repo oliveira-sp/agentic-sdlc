@@ -11,6 +11,7 @@ at the repository root (`make install`). It maps 1:1 onto that directory.
 - **commands/** — custom slash commands, including the `/chezmoi/add` and
   `/chezmoi/status` workflow
 - **bin/** — helper scripts: `gcommit`
+- **agents/** — shared agent behavior; `commit.md` has no model or variant setting
 
 ## Machine-local config
 
@@ -32,10 +33,15 @@ default applies.
 it requires either an explicit model or one configured on the agent.
 `GCOMMIT_RETRIES` / `GCOMMIT_RETRY_DELAY` tune the generation retry loop.
 Failed commands, empty responses, and invalid messages all consume an attempt.
-The script requires a Conventional Commit subject and rejects tool-call or
+The script requires exactly one `<commit_message>` block, with each delimiter
+on its own line. It extracts only that block's contents, tolerating commentary
+outside it, but rejects missing, duplicate, nested, or malformed envelopes and
+undelimited responses. It requires a Conventional Commit subject and rejects tool-call or
 reasoning markup, fenced blocks, control characters, and malformed body
 separation. If no valid response is produced, it exits without running Git's
-commit command; it never tries to salvage a message by stripping markup.
+commit command. It never guesses which draft is final or repairs invalid message
+contents. Format failures add the specific rejection reason to the next prompt;
+command failures are reported separately. Every retry reuses the original snapshot.
 `GCOMMIT_DEBUG=1` (or `gcommit --debug`) prints the resolved model and the
 whole prompt to stderr before sending it, preserves OpenCode's stderr, and
 prints rejected responses. Debug output may contain sensitive repository data.
@@ -67,27 +73,30 @@ The sync never deletes, so the file is preserved across `make install`.
   It creates the commit only after user confirmation. Direct skill invocation
   reads the same shared message rules.
 - **`gcommit [context...]`** reads the shared prompt file directly, adds the
-  staged snapshot and optional context, and asks the model for only a message.
+   staged snapshot and optional context, and requests message-generation-only mode
+   with one `<commit_message>` envelope.
   It does not invoke a slash command or load the skill. The script then runs
   `git commit --edit -F -` so the user reviews the message in Git's editor.
 
 The shared prompt has no YAML frontmatter. Message-writing rules live there.
 `/commit` owns its staged-only confirmation workflow; the skill also supports
 explicitly scoped staging for agentic workflows. `gcommit` supplies a
-message-only output contract and leaves review to Git's editor.
+envelope parsing, validation, and corrective retries, and leaves review to Git's
+editor. `agents/commit.md` defines the generation-only XML envelope behavior;
+interactive `/commit` requests retain their proposal and confirmation workflow.
 
-Both entry points use the same machine-local `commit` agent by default. Configure
-it as a primary agent with the desired `provider/model#variant` in
+Both entry points use the same shared `commit` agent by default. Configure
+its desired `provider/model#variant` per machine in
 `opencode.jsonc`. `/commit` needs shell permission to refresh the snapshot and
 execute the approved Git commit; a blanket deny-all agent rule blocks those
 steps. Neither entry point loads skills. Use the commit skill from a
 tool-capable agent for conversational staging-and-confirmation workflows.
 
-For a message-only `gcommit` agent, configure a dedicated formatter `system`
-prompt and deny all tools. A non-empty `system` replaces OpenCode's default
-coding-agent prompt; permission denial alone does not do that. Such an agent
-is not suitable for `/commit`'s tool-based workflow. Use `GCOMMIT_AGENT` to
-select a separate formatter when both workflows are needed.
+The shared Markdown agent supplies the system prompt without pinning a model or
+variant. Keep those machine-specific settings in `opencode.jsonc`, managed by
+chezmoi. A machine-local `system` override can replace the shared behavior, so
+avoid duplicating the agent prompt there. `GCOMMIT_AGENT` remains available for
+explicitly selecting a different agent.
 
 Run the isolated script tests from the repository root with
 `python3 scripts/test-gcommit.py`. They mock OpenCode and Git, including the

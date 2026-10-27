@@ -22,7 +22,7 @@ TOOL_CALL = '''<tool_call>
 
 class GcommitTests(unittest.TestCase):
     def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory(prefix="gcommit-test-", dir="/tmp/opencode")
+        self.tmp = tempfile.TemporaryDirectory(prefix="gcommit-test-")
         self.addCleanup(self.tmp.cleanup)
         self.root = Path(self.tmp.name)
         self.bin = self.root / "bin"
@@ -77,6 +77,12 @@ sys.exit(response.get("status", 0))
         path.chmod(0o755)
 
     def run_script(self, responses, *args):
+        responses = [
+            {**response, "text": response["raw"] if "raw" in response else
+             "<commit_message>\n" + response.get("text", "").rstrip("\n") +
+             "\n</commit_message>\n"}
+            for response in responses
+        ]
         (self.root / "responses.json").write_text(json.dumps(responses))
         return subprocess.run(
             ["bash", str(SCRIPT), *args], env=self.env, cwd=self.root,
@@ -91,8 +97,63 @@ sys.exit(response.get("status", 0))
     def test_valid_subject(self):
         self.assert_committed(self.run_script([{"text": VALID}]))
 
+    def test_analysis_and_drafts_outside_final_block(self):
+        response = (
+            "To create the commit message, I need to analyze the staged changes.\n"
+            "**Draft:**\nfeat(ssh): add identity script and docs\n\n"
+            "Let me verify the subject length.\n"
+            "<commit_message>\n" + VALID + "</commit_message>\n"
+            "This is the final message.\n"
+        )
+        self.assert_committed(self.run_script([{"raw": response}]))
+
+    def test_invalid_envelopes_never_commit(self):
+        block = "<commit_message>\n" + VALID + "</commit_message>\n"
+        invalid = [
+            VALID, "", block + block,
+            "<commit_message>\n" + VALID,
+            VALID + "</commit_message>\n",
+            "</commit_message>\n<commit_message>\n" + VALID,
+            "<commit_message>\n" + block + "</commit_message>\n",
+            "<commit_message>" + VALID + "</commit_message>\n",
+            " <commit_message>\n" + VALID + "</commit_message>\n",
+            "<commit_message extra>\n" + VALID + "</commit_message>\n",
+            "<commit_message>\n</commit_message>\n",
+        ]
+        for response in invalid:
+            with self.subTest(response=response):
+                result = self.run_script([{"raw": response}])
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse((self.root / "commit.json").exists())
+                self.assertIn("no valid commit message after 3 attempts", result.stderr)
+                (self.root / "count").unlink()
+
+    def test_retries_include_specific_feedback_and_snapshot(self):
+        result = self.run_script([
+            {"raw": VALID}, {"text": "fix: trailing period.\n"}, {"text": VALID},
+        ])
+        self.assert_committed(result, attempts=3)
+        runs = [json.loads(line) for line in (self.root / "runs.jsonl").read_text().splitlines()]
+        self.assertNotIn("## Correction for retry", runs[0][-1])
+        self.assertIn("expected exactly one complete", runs[1][-1])
+        self.assertIn("no trailing period", runs[2][-1])
+        for run in runs:
+            self.assertIn("--- staged diff (full) ---", run[-1])
+
     def test_valid_body(self):
         message = "feat(api)!: reject invalid requests\n\n- Validate input\n- Return an error\n"
+        self.assert_committed(self.run_script([{"text": message}]), message)
+
+    def test_envelope_preserves_plain_text_not_xml(self):
+        message = "fix(api): validate input & output\n\n- Reject values < 0 and preserve `&amp;` literally\n"
+        self.assert_committed(self.run_script([{"text": message}]), message)
+
+    def test_message_can_describe_its_envelope(self):
+        message = (
+            "feat(gcommit): require <commit_message> envelope in model responses\n\n"
+            "- Extract <commit_message> and </commit_message> delimiters\n"
+            "- Reject malformed or duplicate blocks\n"
+        )
         self.assert_committed(self.run_script([{"text": message}]), message)
 
     def test_custom_type_and_no_scope(self):

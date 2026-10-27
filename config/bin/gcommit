@@ -96,18 +96,18 @@ if ((${#context_args[@]})); then
 fi
 
 prompt="$(cat <<EOF
-Generate a commit message from the snapshot below. The output is piped
-verbatim into git commit for the user to edit.
+This is a message-generation-only request. Generate a commit message from the
+snapshot below. The message inside the envelope is passed to git commit for
+the user to edit.
 
 $rules
 
 ## Output contract
 
-- Print only the commit message: subject, then (if any) a blank line and body.
-- Your first output character must be the start of the subject line.
-- Plain text: no markdown formatting, no fenced blocks, no commentary before
-  or after, exactly one trailing newline. Plain-text body bullets are allowed.
-- If the snapshot shows no staged changes, print nothing.
+- Return exactly one <commit_message> block with each delimiter on its own line.
+- Inside: only the subject, then (if any) a blank line and body. No leading blank line.
+- Use plain text, not XML escapes. Plain-text body bullets are allowed.
+- No analysis, drafts, commentary, or fenced blocks inside or outside the block.
 - Do not load any skills or run any tools. Never run git commit, git add,
   or any mutating command.
 
@@ -134,7 +134,7 @@ validate_message() {
   local subject="${1%%$'\n'*}" rest summary
   local subject_pattern='^[a-z][a-z0-9-]*(\([^()[:cntrl:]]+\))?!?: ([^[:space:]].*)$'
   validation_error=""
-  if [[ -z "${1//[[:space:]]/}" ]]; then
+  if ! printf '%s\n' "$1" | grep '[^[:space:]]' >/dev/null; then
     validation_error="empty response"
   elif printf '%s\n' "$1" | grep -Ei '```|~~~|</?(tool_call(s)?|function|parameter(s)?|think(ing)?|analysis|reasoning|reflection|assistant|command)([[:space:]>:=/]|$)|<\|[^>]*\|>' >/dev/null; then
     validation_error="tool-call, reasoning, or fenced markup in response"
@@ -156,26 +156,51 @@ validate_message() {
   [[ -z "$validation_error" ]]
 }
 
+extract_message() {
+  # Require one standalone delimiter pair; never guess which draft is final.
+  # Buffer the contents so malformed envelopes never produce a partial message.
+  awk '
+    $0 == "<commit_message>" { if (state != 0) bad = 1; state = 1; opens++; next }
+    $0 == "</commit_message>" { if (state != 1) bad = 1; state = 2; closes++; next }
+    /^[[:space:]]*<\/?commit_message/ { bad = 1 }
+    state == 1 { content = content $0 "\n" }
+    END {
+      if (bad || opens != 1 || closes != 1 || state != 2) exit 1
+      printf "%s", content
+    }
+  '
+}
+
 generate_message() {
   if [[ "$debug" == 1 ]]; then
-    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt"
+    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$attempt_prompt"
   else
-    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$prompt" 2>/dev/null
+    opencode run --title "gcommit" --agent "$agent" "${model_args[@]}" "$attempt_prompt" 2>/dev/null
   fi
 }
 
 msg=""
+attempt_prompt="$prompt"
 for ((i = 1; i <= retries; i++)); do
-  if msg="$(generate_message)"; then
-    if validate_message "$msg"; then
+  if response="$(generate_message)"; then
+    if ! msg="$(printf '%s\n' "$response" | extract_message)"; then
+      validation_error="expected exactly one complete <commit_message> block with standalone delimiters"
+    elif validate_message "$msg"; then
       break
     fi
     echo "gcommit: attempt $i rejected: $validation_error" >&2
+    attempt_prompt="$prompt
+
+## Correction for retry
+
+The previous response was rejected: $validation_error.
+Return exactly one <commit_message> block containing only the final valid
+commit message. Put each delimiter on its own line. Omit analysis and drafts."
   else
     echo "gcommit: attempt $i failed: opencode exited with status $?" >&2
   fi
-  if [[ "$debug" == 1 && -n "$msg" ]]; then
-    printf 'gcommit: ---- rejected response ----\n%s\ngcommit: ---------------------------\n' "$msg" >&2
+  if [[ "$debug" == 1 && -n "$response" ]]; then
+    printf 'gcommit: ---- rejected response ----\n%s\ngcommit: ---------------------------\n' "$response" >&2
   fi
   msg=""
   if ((i < retries)); then
