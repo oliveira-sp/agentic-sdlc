@@ -12,14 +12,13 @@ Arguments: $ARGUMENTS
 
 `$ARGUMENTS` names the source of the plan to ticket. Support:
 
-- **A spec issue number** (e.g. `42`) — fetch it via the tracker doc's "fetch the relevant ticket" workflow.
+- **A spec issue number** (e.g. `42`) — fetch it with `glab issue view <n> --comments`.
 - **A file path** (e.g. `docs/specs/checkout.md`) — read it.
 - **Nothing** — use the current plan/spec in the conversation.
 
 ## Before you start
 
-- Read `docs/agents/issue-tracker.md` to learn the exact commands for this repo's tracker. Use them for every tracker operation; do not hardcode tracker calls.
-- If `docs/agents/issue-tracker.md` is missing, tell the user to run the `setup-engineering` command first, then stop.
+- All tracker operations go through `glab` — follow the `glab` skill for command syntax and gotchas.
 - Read `CONTEXT.md` (if it exists) and any ADRs in `docs/adr/` that touch this area. Use the glossary's vocabulary in ticket titles and descriptions.
 
 ## Break into tickets
@@ -61,7 +60,7 @@ Confirm the ticket list and every blocking edge with the user. On their go-ahead
    glab issue link --link-type blocks <issue> <blocking-issue>
    ```
 
-   If the tracker cannot express native blocking links (see the tracker doc's blocking section), fall back to a `Blocked by: #<n>, #<n>` line at the top of the blocked ticket's description.
+   If the installed glab has no `glab issue link` subcommand, fall back to a `Blocked by: #<n>, #<n>` line at the top of the blocked ticket's description.
 
 ## Done
 
@@ -71,4 +70,3 @@ Report the full dependency graph by number (e.g. `#1 → #2 → #3`, with `#1 bl
 
 - Never merge tickets into horizontal slices; each must be a vertical tracer bullet.
 - Never create, edit, or commit any file. `to-tickets` only publishes to the tracker.
-- If the repo's tracker is not configured (`docs/agents/issue-tracker.md` missing), stop and point the user at `setup-engineering`.

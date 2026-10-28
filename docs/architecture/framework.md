@@ -56,9 +56,8 @@ are tools to invoke when useful, not stages that must be passed through.
 
 ### Shaped workflows
 
-- **Ideation to tickets** — `to-spec` → `to-tickets`. Both read
-  `docs/agents/issue-tracker.md`; if it is missing they stop and ask the user
-  to configure the repo's tracker doc first.
+- **Ideation to tickets** — `to-spec` → `to-tickets`. Both publish through
+  `glab`, following the `glab` skill.
 - **Dotfiles** — `chezmoi/status` → `chezmoi/add` → `commit`. Scans run inline
   in the command via a read-only script.
 - **Review** — the `code-review` skill, run against a branch, PR, or tag.
@@ -96,17 +95,10 @@ committing and pushing are human decisions.
 
 ## Per-repo configuration
 
-The `config/` payload ships the machinery (installed via `make install` into
-the global opencode config dir); each repository maintains its own working
-agreements under `docs/agents/`:
-
-- `docs/agents/issue-tracker.md` — where issues live and the exact commands to
-  read/write them (GitLab via `glab` by default, with fallbacks for local
-  markdown trackers).
-- `docs/agents/domain.md` — the domain-doc layout and consumer rules.
-
-Commands and skills read these files at runtime, so they adapt to each repo's
-tracker and conventions instead of hardcoding them.
+The `config/` payload ships all machinery (installed via `make install` into
+the global opencode config dir). GitLab-backed commands and skills talk to
+the tracker directly through `glab`, following the `glab` skill; consuming
+repos need no additional configuration files.
 
 ## Architectural Decisions
 
@@ -118,8 +110,5 @@ tracker and conventions instead of hardcoding them.
 3. **Safety in configuration.** Approval is enforced by `opencode.jsonc`
    permission rules (machine-local, chezmoi-managed) and read-only subagents,
    not by convention.
-4. **Per-repo knowledge delegated.** Tracker and domain conventions live in
-   `docs/agents/*.md`, maintained per repository and read by the commands and
-   skills at runtime.
-5. **Human-in-the-loop by default.** No commits, pushes, or merges happen
+4. **Human-in-the-loop by default.** No commits, pushes, or merges happen
    without explicit approval.

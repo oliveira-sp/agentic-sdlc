@@ -47,10 +47,8 @@ the global opencode config directory (`~/.config/opencode`).
 | **Agents** | `config/agents/` — `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
 | **Bin** | `config/bin/` — helper scripts (`gcommit`) |
 
-Repo documentation (not installed) lives at the top-level `docs/`: this
-repo's own issue-tracker and domain-doc guidance (`docs/agents/`, which also
-serves as the reference layout for consuming repos) and architecture notes
-(`docs/architecture/`).
+Repo documentation (not installed) lives at the top-level `docs/`:
+architecture notes (`docs/architecture/`).
 
 Machine-specific opencode configuration (`opencode.jsonc` — model selection,
 permission rules, MCP servers) is **not** part of this repo; it is managed per
@@ -101,9 +99,8 @@ The commands compose into a few well-worn chains:
 - **Review** — the `code-review` skill reviews a fixed point along Standards
   and Spec axes with parallel subagents.
 
-Each consuming repo carries its own `docs/agents/issue-tracker.md` and
-`docs/agents/domain.md`, which the commands and skills read at runtime; the
-copies in this repo's `docs/agents/` show the expected shape.
+GitLab-backed commands and skills talk to the tracker directly through
+`glab`, following the `glab` skill.
 
 ## Status
 
@@ -113,7 +110,6 @@ used daily; the framework around them is intentionally light.
 ## Roadmap
 
 - Multi-context domain docs (beyond single-context)
-- Local markdown issue-tracker variant automation
 - Optional role prompts (product, planner) as thin command wrappers rather than
   a required agent roster
 

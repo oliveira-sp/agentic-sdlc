@@ -10,8 +10,7 @@ Arguments: $ARGUMENTS
 
 ## Before you start
 
-- Read `docs/agents/issue-tracker.md` to learn the exact commands for this repo's tracker. Use them for every tracker operation; do not hardcode tracker calls.
-- If `docs/agents/issue-tracker.md` is missing, tell the user to run the `setup-engineering` command first, then stop.
+- All tracker operations go through `glab` — follow the `glab` skill for command syntax and gotchas.
 - Read `CONTEXT.md` (if it exists) and any ADRs in `docs/adr/` that touch this area. Use the glossary's vocabulary when naming domain concepts; don't invent synonyms.
 
 ## Synthesize the spec
@@ -46,4 +45,3 @@ Report the issue number and URL. `to-tickets` can now break this spec into ticke
 
 - Never interview the user during synthesis; the conversation is the source.
 - Never create, edit, or commit any file. `to-spec` only publishes to the tracker.
-- If the repo's tracker is not configured (`docs/agents/issue-tracker.md` missing), stop and point the user at `setup-engineering`.

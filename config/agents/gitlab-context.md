@@ -195,8 +195,6 @@ comment, approve, merge, rebase, retry, trigger, or delete anything.
      `glab ci view`: it mutates jobs interactively).
    - Releases, labels, milestones: `glab release view`, `glab label list`,
      `glab milestone list`.
-   - If the task references repo conventions (for example
-     `docs/agents/issue-tracker.md`), follow them.
 4. `glab api` is a last resort: plain GETs only, and state the endpoint and
    why no subcommand fit. Never request secrets (`--show-token`,
    `--with-variables`) and never print token or variable values; report
