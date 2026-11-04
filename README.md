@@ -25,9 +25,12 @@ not stages you must pass through. They stay consistent, auditable, and per-repo.
 
 ### Minimal, read-only agents
 
-Most work happens in the built-in `build`, `plan`, and `explore` agents. A
-small number of purpose-built subagents cover work that is risky-by-adjacency
-(scans of git, `$HOME`, or the issue tracker), and they are read-only.
+Most work happens in the `build`, `plan`, and `explore` agents. The shipped
+`build` override makes the implementation agent work like a human developer:
+TDD-preferred, organized in logical units, with one small commit per unit
+instead of one big commit at the end. A small number of purpose-built
+subagents cover work that is risky-by-adjacency (scans of git, `$HOME`, or the
+issue tracker), and they are read-only.
 
 ### Human-controlled
 
@@ -44,7 +47,7 @@ the global opencode config directory (`~/.config/opencode`).
 |---|---|
 | **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grilling`, `handoff`, `tdd` |
 | **Commands** | `config/commands/` — `commit`, `project-discover`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/status` |
-| **Agents** | `config/agents/` — `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
+| **Agents** | `config/agents/` — `build` (override: human-style implementation — TDD-preferred, one commit per logical unit), `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
 | **Bin** | `config/bin/` — helper scripts (`gcommit`) |
 
 Repo documentation (not installed) lives at the top-level `docs/`:

@@ -14,8 +14,9 @@ The framework rests on four ideas:
   triggers that fire it.
 - **Commands** — slash commands that encode a workflow as a prompt, so it stays
   consistent and reproducible across sessions.
-- **Agents** — mostly the built-in `build`, `plan`, and `explore` agents, plus
-  a small set of purpose-built read-only subagents for risky scans.
+- **Agents** — the `build`, `plan`, and `explore` agents (with a shipped
+  `build` override for human-style implementation), plus a small set of
+  purpose-built read-only subagents for risky scans.
 - **Human control** — approval checkpoints for commits, pushes, and merges,
   backed by permission rules rather than convention.
 
@@ -64,9 +65,14 @@ are tools to invoke when useful, not stages that must be passed through.
 
 ## Agents
 
-Most work uses the built-in `build`, `plan`, and `explore` agents. The only
-custom agent is a read-only subagent, `gitlab-context`:
+Most work uses the `build`, `plan`, and `explore` agents. The payload ships
+two agent definitions:
 
+- `build` — overrides the built-in implementation agent to work like a human
+  developer: TDD-preferred (loading the `tdd` skill for any testable change),
+  organized in logical units, with one small commit per unit created through
+  the `commit` skill rather than one big commit at the end. The prompt
+  references skills by name only, so it behaves the same in any repository.
 - `gitlab-context` — gathers GitLab context (issues, merge requests,
   pipelines, releases, labels) through `glab` and reports it back. Its
   permission set is deny-all by default, opened only to read-only `glab`
@@ -91,7 +97,10 @@ from this repo), permission rules gate the dangerous surface:
 - The `commit` command itself always confirms before committing.
 
 The framework may stage, propose commit messages, and prepare change sets, but
-committing and pushing are human decisions.
+committing and pushing are human decisions. Checkpoint commits made by the
+`build` agent follow the same rule: each one goes through the `commit` skill's
+propose-and-confirm flow, and the `git commit*` permission rule gates
+execution.
 
 ## Per-repo configuration
 

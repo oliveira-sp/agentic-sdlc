@@ -11,7 +11,11 @@ at the repository root (`make install`). It maps 1:1 onto that directory.
 - **commands/** — custom slash commands, including the `/chezmoi/add` and
   `/chezmoi/status` workflow
 - **bin/** — helper scripts: `gcommit`
-- **agents/** — shared agent behavior; `commit.md` has no model or variant setting
+- **agents/** — shared agent behavior; `commit.md` has no model or variant
+  setting; `build.md` overrides the built-in `build` agent to implement like a
+  human developer — TDD-preferred work in logical units with one small commit
+  per unit. It orchestrates the `tdd` and `commit` skills by name and carries
+  no message rules of its own, so it stays repo-agnostic and drift-free
 
 ## Machine-local config
 
