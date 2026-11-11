@@ -9,7 +9,7 @@ at the repository root (`make install`). It maps 1:1 onto that directory.
 - **skills/** — behavior skills loaded as opencode skills (e.g. `chezmoi`,
   `commit`), plus the `chezmoi` scan script under `skills/chezmoi/scripts/`
 - **commands/** — custom slash commands, including the `/chezmoi/add` and
-  `/chezmoi/status` workflow
+  `/chezmoi/status` workflow and `/handoff` for fresh continuation sessions
 - **bin/** — helper scripts: `gcommit`
 - **agents/** — shared agent behavior; `commit.md` has no model or variant
   setting; `build.md` overrides the built-in `build` agent to implement like a

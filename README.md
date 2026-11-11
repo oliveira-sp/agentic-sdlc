@@ -46,7 +46,7 @@ the global opencode config directory (`~/.config/opencode`).
 | Piece | Contents |
 |---|---|
 | **Skills** | `config/skills/` — `commit`, `chezmoi`, `code-review`, `glab`, `grilling`, `handoff`, `tdd` |
-| **Commands** | `config/commands/` — `commit`, `project-discover`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/status` |
+| **Commands** | `config/commands/` — `commit`, `handoff`, `project-discover`, `to-spec`, `to-tickets`, `chezmoi/add`, `chezmoi/status` |
 | **Agents** | `config/agents/` — `build` (override: human-style implementation — TDD-preferred, one commit per logical unit), `gitlab-context` (read-only subagent that fetches GitLab context via `glab`) |
 | **Bin** | `config/bin/` — helper scripts (`gcommit`) |
 
@@ -101,6 +101,13 @@ The commands compose into a few well-worn chains:
   `commit`.
 - **Review** — the `code-review` skill reviews a fixed point along Standards
   and Spec axes with parallel subagents.
+- **Fresh context** — `/handoff [next-session focus]` writes a unique temporary
+  handoff document and preloads a new `Handoff: <topic>` session in the same
+  working directory. Select it through `/sessions` (or your session-menu
+  shortcut), then send the next instruction. The new session stays idle until
+  then. Requires OpenCode V2, `jq`, and a tool-capable agent; no plugin or
+  machine-local configuration changes are needed. The handoff skill remains
+  document-only when invoked separately.
 
 GitLab-backed commands and skills talk to the tracker directly through
 `glab`, following the `glab` skill.
