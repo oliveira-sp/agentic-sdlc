@@ -19,6 +19,17 @@ Use a dedicated subcommand whenever one exists. `glab api` is a last resort:
 use it only when no subcommand covers the task, and state the endpoint and
 why no subcommand fit.
 
+## Writing for GitLab
+
+Before drafting, creating, or editing GitLab text, read and follow
+[writing.md](writing.md). This applies to titles, descriptions, and comments
+or notes on issues, work items, epics, and merge requests, including ad hoc
+requests and text produced by other workflows.
+
+Keep project templates and specialized workflow requirements, including
+approval checkpoints. The writing guide does not authorize publishing or
+expand the scope of the requested change.
+
 ## Command map
 
 - Repos and projects: `glab repo` (list, view, search, contributors)
